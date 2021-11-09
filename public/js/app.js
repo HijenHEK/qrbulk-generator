@@ -2128,6 +2128,11 @@ __webpack_require__.r(__webpack_exports__);
         e = e.trim();
         return e.length;
       });
+      axios.post('/qr_code_bulk_generate', {
+        'qr_code_names_list': this.qr_code_names_list
+      }).then(function () {
+        console.log('success');
+      });
     }
   }
 });
