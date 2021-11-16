@@ -7,6 +7,7 @@ use chillerlan\QRCode\QROptions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use ZipArchive;
 
 class QrCodeBulkGenerator extends Controller
 {
@@ -37,6 +38,29 @@ class QrCodeBulkGenerator extends Controller
             $qrcode->render($code,  $path .'/' . $code .'.png');
             
         }
+
+        
+        
+        
+        $zip_file = $folder . '.zip';
+        $zip = new \ZipArchive();
+        $zip->open($zip_file, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+
+        $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($path));
+        foreach ($files as $name => $file)
+        {
+            // We're skipping all subfolders
+            if (!$file->isDir()) {
+                $filePath     = $file->getRealPath();
+
+                // extracting filename with substr/strlen
+                $relativePath = 'invoices/' . substr($filePath, strlen($path) + 1);
+
+                $zip->addFile($filePath, $relativePath);
+            }
+        }
+        $zip->close();
+        return response(['zip'=> $zip_file] , 200);
 
         
     }

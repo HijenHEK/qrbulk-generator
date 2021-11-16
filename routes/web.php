@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\QrCodeBulkGenerator;
+use App\Http\Controllers\DownloadsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,3 +24,5 @@ Auth::routes(['register'=> false , 'login'=>false]);
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::post('qr_code_bulk_generate' , QrCodeBulkGenerator::class)->name('qr_code_bulk_generate');
+
+Route::post('downloads/{file}' , DownloadsController::class)->name('downloads');

@@ -2111,6 +2111,11 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   mounted: function mounted() {
     console.log('Component mounted.');
@@ -2118,11 +2123,14 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       qr_code_names_text: '',
-      qr_code_names_list: []
+      qr_code_names_list: [],
+      file: ''
     };
   },
   methods: {
     createQrCodeNameList: function createQrCodeNameList() {
+      var _this = this;
+
       this.qr_code_names_list = this.qr_code_names_text.split("\n");
       this.qr_code_names_list = this.qr_code_names_list.filter(function (e) {
         e = e.trim();
@@ -2130,9 +2138,12 @@ __webpack_require__.r(__webpack_exports__);
       });
       axios.post('/qr_code_bulk_generate', {
         'qr_code_names_list': this.qr_code_names_list
-      }).then(function () {
-        console.log('success');
+      }).then(function (res) {
+        _this.file = res.data.zip;
       });
+    },
+    downloadFile: function downloadFile() {
+      axios.post('/downloads/'["this"].file);
     }
   }
 });
@@ -37737,10 +37748,8 @@ var render = function () {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    { staticClass: "p-2 mx-2 d-flex flex-center justify-center" },
-    [
+  return _c("div", [
+    _c("div", { staticClass: "p-2 mx-2 d-flex flex-center justify-center" }, [
       _c("textarea", {
         directives: [
           {
@@ -37782,8 +37791,16 @@ var render = function () {
             0
           )
         : _vm._e(),
-    ]
-  )
+    ]),
+    _vm._v(" "),
+    _vm.file
+      ? _c("div", [
+          _c("a", { on: { click: _vm.downloadFile } }, [
+            _vm._v("Download Results"),
+          ]),
+        ])
+      : _vm._e(),
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true
