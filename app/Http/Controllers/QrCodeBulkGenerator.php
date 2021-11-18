@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use ZipArchive;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Facades\Log;
 
 class QrCodeBulkGenerator extends Controller
 {
@@ -25,7 +27,7 @@ class QrCodeBulkGenerator extends Controller
         ]);
         
         $folder = time() . rand(0 , 1000);
-        $path = storage_path() .'/'. $folder;
+        $path = storage_path('app') .'/'. $folder;
         File::makeDirectory( $path, $mode = 0755, true, true);
 
         foreach($data['qr_code_names_list'] as $code) {
@@ -43,8 +45,9 @@ class QrCodeBulkGenerator extends Controller
         
         
         $zip_file = $folder . '.zip';
+        
         $zip = new \ZipArchive();
-        $zip->open($zip_file, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+        $zip->open(storage_path( 'app/' .  $zip_file) , \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
 
         $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($path));
         foreach ($files as $name => $file)
@@ -54,13 +57,17 @@ class QrCodeBulkGenerator extends Controller
                 $filePath     = $file->getRealPath();
 
                 // extracting filename with substr/strlen
-                $relativePath = 'invoices/' . substr($filePath, strlen($path) + 1);
+                $relativePath = substr($filePath, strlen($path) + 1);
 
                 $zip->addFile($filePath, $relativePath);
             }
         }
         $zip->close();
-        return response(['zip'=> $zip_file] , 200);
+        if(Storage::disk('local')->exists($zip_file)){
+            Storage::disk('local')->deleteDirectory($folder);
+            return response(['zip'=> $zip_file] , 200);
+        }
+        return response()->json(['message'=>'error please try again'], 500);
 
         
     }

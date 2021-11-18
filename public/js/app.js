@@ -2124,7 +2124,9 @@ __webpack_require__.r(__webpack_exports__);
     return {
       qr_code_names_text: '',
       qr_code_names_list: [],
-      file: ''
+      file: '',
+      loading: false,
+      err: false
     };
   },
   methods: {
@@ -2136,14 +2138,38 @@ __webpack_require__.r(__webpack_exports__);
         e = e.trim();
         return e.length;
       });
+      this.loading = true;
+      this.err = false;
       axios.post('/qr_code_bulk_generate', {
         'qr_code_names_list': this.qr_code_names_list
       }).then(function (res) {
+        _this.err = false;
         _this.file = res.data.zip;
+        _this.loading = false;
+      })["catch"](function () {
+        _this.loading = false;
+        _this.err = true;
       });
     },
     downloadFile: function downloadFile() {
-      axios.post('/downloads/'["this"].file);
+      window.open('/downloads/' + this.file, '_blank');
+      return; //         axios.post('/downloads/' + this.file , {
+      //                 headers:{
+      //    'Content-Type': 'application/json; application/octet-stream'
+      //     },
+      //     responseType: 'arraybuffer'
+      //                     }).then((response) => {
+      //                         const blob = new Blob([response.data],{type:'application/zip'});
+      //                         const link = document.createElement('a');
+      //                         link.href = window.URL.createObjectURL(blob)
+      //                         link.download = this.file;
+      //                         document.body.appendChild(link);
+      //                         link.click();
+      //                     })
+      //                     .catch(function (error) {
+      //                         console.log(error);
+      //                     });
+      //                 }
     }
   }
 });
@@ -37749,7 +37775,7 @@ var render = function () {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", [
-    _c("div", { staticClass: "p-2 mx-2 d-flex flex-center justify-center" }, [
+    _c("div", { staticClass: "p-2 mx-2" }, [
       _c("textarea", {
         directives: [
           {
@@ -37759,6 +37785,7 @@ var render = function () {
             expression: "qr_code_names_text",
           },
         ],
+        staticClass: "form-control",
         attrs: {
           name: "qr_code_names_text",
           id: "qr_code_names_text",
@@ -37781,25 +37808,23 @@ var render = function () {
       _vm._v(" "),
       _c("br"),
       _vm._v(" "),
-      _vm.qr_code_names_list.length
-        ? _c(
-            "ul",
-            { staticClass: "d-flex flex-column unstyled" },
-            _vm._l(_vm.qr_code_names_list, function (qr_code_name, index) {
-              return _c("li", { key: index }, [_vm._v(_vm._s(qr_code_name))])
-            }),
-            0
-          )
+      _vm.loading
+        ? _c("div", [_vm._v("Loading .. please wait ")])
+        : _vm.file
+        ? _c("div", [
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-success",
+                on: { click: _vm.downloadFile },
+              },
+              [_vm._v("Download Results")]
+            ),
+          ])
+        : _vm.err
+        ? _c("div", [_vm._v("error ! please try again")])
         : _vm._e(),
     ]),
-    _vm._v(" "),
-    _vm.file
-      ? _c("div", [
-          _c("a", { on: { click: _vm.downloadFile } }, [
-            _vm._v("Download Results"),
-          ]),
-        ])
-      : _vm._e(),
   ])
 }
 var staticRenderFns = []

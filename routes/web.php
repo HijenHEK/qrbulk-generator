@@ -25,4 +25,4 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 Route::post('qr_code_bulk_generate' , QrCodeBulkGenerator::class)->name('qr_code_bulk_generate');
 
-Route::post('downloads/{file}' , DownloadsController::class)->name('downloads');
+Route::get('downloads/{file}' , DownloadsController::class)->name('downloads');
