@@ -29,6 +29,10 @@
             @endif --}}
             
             <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
+                <h4>QrBulk</h4>
+                <p>
+                    Enter some words here ! a png format qr code file will be created for each line .
+                </p>
                 <qr-code-names-list />
             </div>
         </div>

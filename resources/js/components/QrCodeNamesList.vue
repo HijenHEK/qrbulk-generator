@@ -1,14 +1,26 @@
 <template>
-<div>
-    <div class="p-2 mx-2">
-        <textarea class="form-control" name="qr_code_names_text" id="qr_code_names_text" v-model="qr_code_names_text" @change="createQrCodeNameList()" cols="30" rows="10"></textarea>
+<div >
+        
+        <div v-if="err" class="my-1">
+                <button class="alert alert-danger">{{ err }}</button>
+        </div>
+        <textarea class="form-control" placeholder="values goes here !" name="qr_code_names_text" id="qr_code_names_text" v-model="qr_code_names_text" cols="30" rows="10"></textarea>
         <br>
-        <div v-if="loading">Loading .. please wait </div>
+        
+
+        <div v-if="loading">
+                            <button class="btn btn-outline-dark btn-disabled" disabled>Loading ...</button>
+
+        </div>
          <div v-else-if="file">
                 <button class="btn btn-success" @click="downloadFile">Download Results</button>
         </div>
-        <div v-else-if="err">error ! please try again</div>
-    </div>
+       
+
+        <div v-else-if="qr_code_names_list" >
+            <button class="btn btn-primary" @click="createQrCodeNameList()" > Generate QrCodes</button>
+        </div>
+        
    
 </div>
     
@@ -30,6 +42,7 @@
         },
         methods : {
             createQrCodeNameList() {
+                
                 this.qr_code_names_list = this.qr_code_names_text.split("\n")
                 this.qr_code_names_list = this.qr_code_names_list.filter((e)=>{
                     e = e.trim();
@@ -43,15 +56,16 @@
                 }).then((res)=>{
                     this.err = false;
                     this.file = res.data.zip;
+                    if(!this.file) this.err = 'Oops something went wrong please try again !';
                     this.loading = false;
-                }).catch(()=>{
+                }).catch((err)=>{
                     this.loading = false;
-                    this.err = true;
-                    
+                    this.err = err;
                 })
             },
-            downloadFile() {
-                window.open( '/downloads/' + this.file , '_blank' );
+            async downloadFile() {
+                window.open( '/downloads/' + this.file , '_blank' )
+                this.file = '';
                 return ;
                 //         axios.post('/downloads/' + this.file , {
                 //                 headers:{

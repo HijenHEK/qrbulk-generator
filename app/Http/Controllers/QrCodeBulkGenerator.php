@@ -62,6 +62,7 @@ class QrCodeBulkGenerator extends Controller
                 $zip->addFile($filePath, $relativePath);
             }
         }
+        
         $zip->close();
         if(Storage::disk('local')->exists($zip_file)){
             Storage::disk('local')->deleteDirectory($folder);
