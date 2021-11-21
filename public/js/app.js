@@ -2147,20 +2147,47 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   mounted: function mounted() {
-    console.log('Component mounted.');
+    console.log("Component mounted.");
   },
   data: function data() {
     return {
-      qr_code_names_text: '',
+      qr_code_names_text: "",
       qr_code_names_list: [],
-      file: '',
+      output_file: "",
       loading: false,
-      err: false
+      err: false,
+      input_file: null
     };
   },
   methods: {
+    clearErr: function clearErr() {
+      this.err = "";
+    },
     createQrCodeNameList: function createQrCodeNameList() {
       var _this = this;
 
@@ -2170,37 +2197,79 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         return e.length;
       });
       this.loading = true;
-      this.err = false;
-      axios.post('/qr_code_bulk_generate', {
-        'qr_code_names_list': this.qr_code_names_list
+      this.clearErr;
+      axios.post("/qr_code_bulk_generate", {
+        qr_code_names_list: this.qr_code_names_list
       }).then(function (res) {
-        _this.err = false;
-        _this.file = res.data.zip;
-        if (!_this.file) _this.err = 'Oops something went wrong please try again !';
+        _this.clearErr;
+        _this.output_file = res.data.zip;
+        if (!_this.output_file) _this.err = "Oops something went wrong please try again !";
         _this.loading = false;
       })["catch"](function (err) {
         _this.loading = false;
         _this.err = err;
       });
     },
-    downloadFile: function downloadFile() {
+    upload: function upload(event) {
       var _this2 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee() {
+        var reader;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                window.open('/downloads/' + _this2.file, '_blank');
-                _this2.file = '';
-                return _context.abrupt("return");
+                _this2.qr_code_names_list = [];
+                _context.next = 3;
+                return _this2.$refs.input_file.files[0];
 
               case 3:
+                _this2.input_file = _context.sent;
+
+                if (!(_this2.input_file.type != "text/plain" || _this2.input_file.name.split(".")[_this2.input_file.name.split(".").length - 1] != "txt")) {
+                  _context.next = 7;
+                  break;
+                }
+
+                _this2.err = "input file should be a plain .txt text file";
+                return _context.abrupt("return");
+
+              case 7:
+                _this2.clearErr;
+                reader = new FileReader();
+                reader.readAsText(_this2.input_file);
+
+                reader.onload = function (evt) {
+                  _this2.qr_code_names_text = evt.target.result;
+                  _this2.createQrCodeNameList;
+                };
+
+              case 11:
               case "end":
                 return _context.stop();
             }
           }
         }, _callee);
+      }))();
+    },
+    downloadFile: function downloadFile() {
+      var _this3 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee2() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                window.open("/downloads/" + _this3.output_file, "_blank");
+                _this3.output_file = "";
+                return _context2.abrupt("return");
+
+              case 3:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2);
       }))();
     }
   }
@@ -38598,6 +38667,10 @@ var render = function () {
       },
       domProps: { value: _vm.qr_code_names_text },
       on: {
+        change: function ($event) {
+          this.input_file = null
+          _vm.clearErr
+        },
         input: function ($event) {
           if ($event.target.composing) {
             return
@@ -38609,6 +38682,20 @@ var render = function () {
     _vm._v(" "),
     _c("br"),
     _vm._v(" "),
+    _c("div", [
+      _c("div", { staticClass: "form-group" }, [
+        _vm._m(0),
+        _vm._v(" "),
+        _c("br"),
+        _vm._v(" "),
+        _c("input", {
+          ref: "input_file",
+          attrs: { type: "file", name: "input_file", accept: "plain/text" },
+          on: { change: _vm.upload },
+        }),
+      ]),
+    ]),
+    _vm._v(" "),
     _vm.loading
       ? _c("div", [
           _c(
@@ -38617,15 +38704,15 @@ var render = function () {
               staticClass: "btn btn-outline-dark btn-disabled",
               attrs: { disabled: "" },
             },
-            [_vm._v("Loading ...")]
+            [_vm._v("\n      Loading ...\n    ")]
           ),
         ])
-      : _vm.file
+      : _vm.output_file
       ? _c("div", [
           _c(
             "button",
             { staticClass: "btn btn-success", on: { click: _vm.downloadFile } },
-            [_vm._v("Download Results")]
+            [_vm._v("\n      Download Results\n    ")]
           ),
         ])
       : _vm.qr_code_names_list
@@ -38634,19 +38721,26 @@ var render = function () {
             "button",
             {
               staticClass: "btn btn-primary",
-              on: {
-                click: function ($event) {
-                  return _vm.createQrCodeNameList()
-                },
-              },
+              on: { click: _vm.createQrCodeNameList },
             },
-            [_vm._v(" Generate QrCodes")]
+            [_vm._v("\n      Generate QrCodes\n    ")]
           ),
         ])
       : _vm._e(),
   ])
 }
-var staticRenderFns = []
+var staticRenderFns = [
+  function () {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("label", { attrs: { for: "file-input" } }, [
+      _vm._v("Or upload a "),
+      _c("strong", [_vm._v(".txt")]),
+      _vm._v(" file"),
+    ])
+  },
+]
 render._withStripped = true
 
 
