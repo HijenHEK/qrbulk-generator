@@ -37,7 +37,10 @@ class QrCodeBulkGenerator extends Controller
             $qrcode = new QRCode($options);
             
             // and dump the output
-            $qrcode->render($code,  $path .'/' . $code .'.png');
+
+            $filename = preg_replace("([^\w\s\d\-_~,;\[\]\(\)])" , "" ,  $code);
+
+            $qrcode->render($code,  $path .'/' . $filename .'.png');
             
         }
 
