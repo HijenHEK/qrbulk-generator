@@ -10,7 +10,7 @@
       name="qr_code_names_text"
       id="qr_code_names_text"
       v-model="qr_code_names_text"
-      @change="this.input_file=null;clearErr"
+      @change="input_file=null;clearErr"
       cols="30"
       rows="10"
     ></textarea>
@@ -35,7 +35,8 @@
         Loading ...
       </button>
     </div>
-    <div v-else-if="output_file">
+    
+    <div v-else-if="folder" >
       <button class="btn btn-success" @click="downloadFile">
         Download Results
       </button>
@@ -62,6 +63,8 @@ export default {
       loading: false,
       err: false,
       input_file: null,
+      folder : null,
+      output_file:null
     };
   },
   methods: {
@@ -83,8 +86,9 @@ export default {
         })
         .then((res) => {
           this.clearErr;
-          this.output_file = res.data.zip;
-          if (!this.output_file)
+          this.folder = res.data.folder;
+          console.log(res);
+          if (!this.folder)
             this.err = "Oops something went wrong please try again !";
           this.loading = false;
         })
@@ -114,26 +118,26 @@ export default {
       };
     },
     async downloadFile() {
+      await axios
+        .post("/generate_zip_file/" + this.folder, {
+          qr_code_names_list: this.qr_code_names_list,
+        })
+        .then((res) => {
+          this.clearErr;
+          this.output_file = res.data.zip;
+
+      if (!this.output_file)
+            this.err = "Oops something went wrong please try again !";
+          this.loading = false;
+        })
+        .catch((err) => {
+          this.loading = false;
+          this.err = err;
+        });
       window.open("/downloads/" + this.output_file, "_blank");
       this.output_file = "";
       return;
-      //         axios.post('/downloads/' + this.output_file , {
-      //                 headers:{
-      //    'Content-Type': 'application/json; application/octet-stream'
-      //     },
-      //     responseType: 'arraybuffer'
-      //                     }).then((response) => {
-      //                         const blob = new Blob([response.data],{type:'application/zip'});
-      //                         const link = document.createElement('a');
-      //                         link.href = window.URL.createObjectURL(blob)
-      //                         link.download = this.output_file;
-      //                         document.body.appendChild(link);
-      //                         link.click();
-      //                     })
-      //                     .catch(function (error) {
-      //                         console.log(error);
-      //                     });
-      //                 }
+
     },
   },
 };

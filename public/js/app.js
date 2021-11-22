@@ -2119,6 +2119,9 @@ function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+//
 //
 //
 //
@@ -2175,14 +2178,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     console.log("Component mounted.");
   },
   data: function data() {
-    return {
+    return _defineProperty({
       qr_code_names_text: "",
       qr_code_names_list: [],
       output_file: "",
       loading: false,
       err: false,
-      input_file: null
-    };
+      input_file: null,
+      folder: null
+    }, "output_file", null);
   },
   methods: {
     clearErr: function clearErr() {
@@ -2202,8 +2206,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         qr_code_names_list: this.qr_code_names_list
       }).then(function (res) {
         _this.clearErr;
-        _this.output_file = res.data.zip;
-        if (!_this.output_file) _this.err = "Oops something went wrong please try again !";
+        _this.folder = res.data.folder;
+        console.log(res);
+        if (!_this.folder) _this.err = "Oops something went wrong please try again !";
         _this.loading = false;
       })["catch"](function (err) {
         _this.loading = false;
@@ -2260,11 +2265,25 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
+                _context2.next = 2;
+                return axios.post("/generate_zip_file/" + _this3.folder, {
+                  qr_code_names_list: _this3.qr_code_names_list
+                }).then(function (res) {
+                  _this3.clearErr;
+                  _this3.output_file = res.data.zip;
+                  if (!_this3.output_file) _this3.err = "Oops something went wrong please try again !";
+                  _this3.loading = false;
+                })["catch"](function (err) {
+                  _this3.loading = false;
+                  _this3.err = err;
+                });
+
+              case 2:
                 window.open("/downloads/" + _this3.output_file, "_blank");
                 _this3.output_file = "";
                 return _context2.abrupt("return");
 
-              case 3:
+              case 5:
               case "end":
                 return _context2.stop();
             }
@@ -38668,7 +38687,7 @@ var render = function () {
       domProps: { value: _vm.qr_code_names_text },
       on: {
         change: function ($event) {
-          this.input_file = null
+          _vm.input_file = null
           _vm.clearErr
         },
         input: function ($event) {
@@ -38707,7 +38726,7 @@ var render = function () {
             [_vm._v("\n      Loading ...\n    ")]
           ),
         ])
-      : _vm.output_file
+      : _vm.folder
       ? _c("div", [
           _c(
             "button",

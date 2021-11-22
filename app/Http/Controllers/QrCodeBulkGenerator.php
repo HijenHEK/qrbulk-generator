@@ -45,34 +45,12 @@ class QrCodeBulkGenerator extends Controller
         }
 
         
+        return response()->json([
+            'folder'=> $folder 
+        ],200);
         
         
-        $zip_file = $folder . '.zip';
         
-        $zip = new \ZipArchive();
-        $zip->open(storage_path( 'app/' .  $zip_file) , \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
-
-        $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($path));
-        foreach ($files as $name => $file)
-        {
-            // We're skipping all subfolders
-            if (!$file->isDir()) {
-                $filePath     = $file->getRealPath();
-
-                // extracting filename with substr/strlen
-                $relativePath = substr($filePath, strlen($path) + 1);
-
-                $zip->addFile($filePath, $relativePath);
-            }
-        }
-        
-        $zip->close();
-        if(Storage::disk('local')->exists($zip_file)){
-            Storage::disk('local')->deleteDirectory($folder);
-            return response(['zip'=> $zip_file] , 200);
-        }
-        return response()->json(['message'=>'error please try again'], 500);
-
         
     }
 }
