@@ -40,6 +40,10 @@
       <button class="btn btn-success" @click="downloadFile">
         Download Results
       </button>
+
+      <button class="btn btn-warning" @click="cleanGenerator">
+        Reset
+      </button>
     </div>
 
     <div v-else-if="qr_code_names_list">
@@ -117,15 +121,37 @@ export default {
         this.createQrCodeNameList;
       };
     },
-    async downloadFile() {
-      await axios
-        .post("/generate_zip_file/" + this.folder, {
-          qr_code_names_list: this.qr_code_names_list,
+    cleanGenerator(){
+                this.loading = true;
+
+      axios
+        .post("/clean_storage/" + this.folder)
+        .then((res) => {
+          this.clearErr;
+ this.folder = null ,
+      this.output_file = null ,
+      this.input_file = null,
+      this.qr_code_names_text = null ,
+      this.qr_code_names_list = [];
+                this.loading = false;
+
         })
+        .catch((err) => {
+          this.loading = false;
+          this.err = err;
+        });
+     
+    },
+    downloadFile() {
+                      this.loading = true;
+
+      axios
+        .post("/generate_zip_file/" + this.folder)
         .then((res) => {
           this.clearErr;
           this.output_file = res.data.zip;
-
+   window.open("/downloads/" + this.output_file, "_blank");
+      this.output_file = "";
       if (!this.output_file)
             this.err = "Oops something went wrong please try again !";
           this.loading = false;
@@ -134,9 +160,7 @@ export default {
           this.loading = false;
           this.err = err;
         });
-      window.open("/downloads/" + this.output_file, "_blank");
-      this.output_file = "";
-      return;
+   
 
     },
   },

@@ -12,7 +12,7 @@ class DownloadsController extends Controller
         $file = 'app/' . $file ;
         $file = storage_path($file);
         if (file_exists($file)) {
-            return response()->download($file , time().'.zip', array('Content-Type: application/octet-stream','Content-Length: '. filesize($file)))->deleteFileAfterSend(true);
+            return response()->download($file , time().'.zip', array('Content-Type: application/octet-stream','Content-Length: '. filesize($file)))->deleteFileAfterSend(false);
         } else {
             return view('errors.404');       
         }

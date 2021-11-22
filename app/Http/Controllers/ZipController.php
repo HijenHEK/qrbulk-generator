@@ -40,7 +40,6 @@ class ZipController extends Controller
         
         $zip->close();
         if(Storage::disk('local')->exists($zip_file)){
-            Storage::disk('local')->deleteDirectory($folder);
             return response(['zip'=> $zip_file] , 200);
         }
         return response()->json(['message'=>'error please try again'], 500);

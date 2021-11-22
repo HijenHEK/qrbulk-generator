@@ -2173,6 +2173,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   mounted: function mounted() {
     console.log("Component mounted.");
@@ -2257,39 +2261,34 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         }, _callee);
       }))();
     },
-    downloadFile: function downloadFile() {
+    cleanGenerator: function cleanGenerator() {
       var _this3 = this;
 
-      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee2() {
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee2$(_context2) {
-          while (1) {
-            switch (_context2.prev = _context2.next) {
-              case 0:
-                _context2.next = 2;
-                return axios.post("/generate_zip_file/" + _this3.folder, {
-                  qr_code_names_list: _this3.qr_code_names_list
-                }).then(function (res) {
-                  _this3.clearErr;
-                  _this3.output_file = res.data.zip;
-                  if (!_this3.output_file) _this3.err = "Oops something went wrong please try again !";
-                  _this3.loading = false;
-                })["catch"](function (err) {
-                  _this3.loading = false;
-                  _this3.err = err;
-                });
+      this.loading = true;
+      axios.post("/clean_storage/" + this.folder).then(function (res) {
+        _this3.clearErr;
+        _this3.folder = null, _this3.output_file = null, _this3.input_file = null, _this3.qr_code_names_text = null, _this3.qr_code_names_list = [];
+        _this3.loading = false;
+      })["catch"](function (err) {
+        _this3.loading = false;
+        _this3.err = err;
+      });
+    },
+    downloadFile: function downloadFile() {
+      var _this4 = this;
 
-              case 2:
-                window.open("/downloads/" + _this3.output_file, "_blank");
-                _this3.output_file = "";
-                return _context2.abrupt("return");
-
-              case 5:
-              case "end":
-                return _context2.stop();
-            }
-          }
-        }, _callee2);
-      }))();
+      this.loading = true;
+      axios.post("/generate_zip_file/" + this.folder).then(function (res) {
+        _this4.clearErr;
+        _this4.output_file = res.data.zip;
+        window.open("/downloads/" + _this4.output_file, "_blank");
+        _this4.output_file = "";
+        if (!_this4.output_file) _this4.err = "Oops something went wrong please try again !";
+        _this4.loading = false;
+      })["catch"](function (err) {
+        _this4.loading = false;
+        _this4.err = err;
+      });
     }
   }
 });
@@ -38732,6 +38731,15 @@ var render = function () {
             "button",
             { staticClass: "btn btn-success", on: { click: _vm.downloadFile } },
             [_vm._v("\n      Download Results\n    ")]
+          ),
+          _vm._v(" "),
+          _c(
+            "button",
+            {
+              staticClass: "btn btn-warning",
+              on: { click: _vm.cleanGenerator },
+            },
+            [_vm._v("\n      Reset\n    ")]
           ),
         ])
       : _vm.qr_code_names_list
