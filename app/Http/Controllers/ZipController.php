@@ -19,29 +19,30 @@ class ZipController extends Controller
 
         
         $zip_file = $folder . '.zip';
-        $path = storage_path('app') .'/'. $folder;
-        
-        $zip = new \ZipArchive();
-        $zip->open(storage_path( 'app/' .  $zip_file) , \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+        if(! Storage::disk('local')->exists($zip_file)){
+            $path = storage_path('app') .'/'. $folder;
+            
+            $zip = new \ZipArchive();
+            $zip->open(storage_path( 'app/' .  $zip_file) , \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
 
-        $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($path));
-        foreach ($files as $name => $file)
-        {
-            // We're skipping all subfolders
-            if (!$file->isDir()) {
-                $filePath     = $file->getRealPath();
+            $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($path));
+            foreach ($files as $name => $file)
+            {
+                // We're skipping all subfolders
+                if (!$file->isDir()) {
+                    $filePath     = $file->getRealPath();
 
-                // extracting filename with substr/strlen
-                $relativePath = substr($filePath, strlen($path) + 1);
+                    // extracting filename with substr/strlen
+                    $relativePath = substr($filePath, strlen($path) + 1);
 
-                $zip->addFile($filePath, $relativePath);
+                    $zip->addFile($filePath, $relativePath);
+                }
             }
-        }
-        
-        $zip->close();
-        if(Storage::disk('local')->exists($zip_file)){
+            
+            $zip->close();
+        }   
             return response(['zip'=> $zip_file] , 200);
-        }
+        
         return response()->json(['message'=>'error please try again'], 500);
 
         

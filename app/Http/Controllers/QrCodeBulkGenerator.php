@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\CleanStorage;
 use chillerlan\QRCode\QRCode;
 use chillerlan\QRCode\QROptions;
 use Illuminate\Http\Request;
@@ -43,7 +44,8 @@ class QrCodeBulkGenerator extends Controller
             $qrcode->render($code,  $path .'/' . $filename .'.png');
             
         }
-
+        CleanStorage::dispatch($folder)
+                    ->delay(now()->addMinutes(10));
         
         return response()->json([
             'folder'=> $folder 

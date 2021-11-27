@@ -2267,7 +2267,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       this.loading = true;
       axios.post("/clean_storage/" + this.folder).then(function (res) {
         _this3.clearErr;
-        _this3.folder = null, _this3.output_file = null, _this3.input_file = null, _this3.qr_code_names_text = null, _this3.qr_code_names_list = [];
+        _this3.output_file = null, _this3.input_file = null, _this3.folder = null, _this3.qr_code_names_text = null, _this3.qr_code_names_list = [];
         _this3.loading = false;
       })["catch"](function (err) {
         _this3.loading = false;
@@ -2283,10 +2283,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         _this4.output_file = res.data.zip;
         window.open("/downloads/" + _this4.output_file, "_blank");
         _this4.output_file = "";
-        if (!_this4.output_file) _this4.err = "Oops something went wrong please try again !";
+        _this4.cleanGenerator;
         _this4.loading = false;
       })["catch"](function (err) {
         _this4.loading = false;
+        _this4.cleanGenerator;
         _this4.err = err;
       });
     }

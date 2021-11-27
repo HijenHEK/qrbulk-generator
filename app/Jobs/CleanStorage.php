@@ -33,7 +33,14 @@ class CleanStorage implements ShouldQueue
      */
     public function handle()
     {
-        Storage::disk('local')->deleteDirectory($this->name);
-        Storage::disk('local')->delete($this->name . 'zip');
+        if(Storage::disk('local')->exists($this->name)) {
+
+            Storage::disk('local')->deleteDirectory($this->name);
+            
+        }
+        if(Storage::disk('local')->exists($this->name . '.zip')) {
+
+            Storage::disk('local')->delete($this->name . '.zip');
+        }
     }
 }

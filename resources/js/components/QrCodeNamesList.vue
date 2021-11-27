@@ -92,8 +92,7 @@ export default {
           this.clearErr;
           this.folder = res.data.folder;
           console.log(res);
-          if (!this.folder)
-            this.err = "Oops something went wrong please try again !";
+          if (!this.folder) this.err = "Oops something went wrong please try again !";
           this.loading = false;
         })
         .catch((err) => {
@@ -122,18 +121,18 @@ export default {
       };
     },
     cleanGenerator(){
-                this.loading = true;
+      this.loading = true;
 
       axios
         .post("/clean_storage/" + this.folder)
         .then((res) => {
           this.clearErr;
- this.folder = null ,
-      this.output_file = null ,
-      this.input_file = null,
-      this.qr_code_names_text = null ,
-      this.qr_code_names_list = [];
-                this.loading = false;
+          this.output_file = null ,
+          this.input_file = null,
+          this.folder = null,
+          this.qr_code_names_text = null ,
+          this.qr_code_names_list = [];
+                    this.loading = false;
 
         })
         .catch((err) => {
@@ -143,21 +142,21 @@ export default {
      
     },
     downloadFile() {
-                      this.loading = true;
+      this.loading = true;
 
       axios
         .post("/generate_zip_file/" + this.folder)
         .then((res) => {
           this.clearErr;
           this.output_file = res.data.zip;
-   window.open("/downloads/" + this.output_file, "_blank");
-      this.output_file = "";
-      if (!this.output_file)
-            this.err = "Oops something went wrong please try again !";
-          this.loading = false;
-        })
+          window.open("/downloads/" + this.output_file, "_blank");
+                this.output_file = "";
+                  this.cleanGenerator;
+                  this.loading = false;
+          })
         .catch((err) => {
           this.loading = false;
+          this.cleanGenerator;
           this.err = err;
         });
    
