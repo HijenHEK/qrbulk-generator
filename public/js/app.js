@@ -2201,6 +2201,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
       this.input_file = null;
       this.output_file = null;
+      this.err = null;
 
       if (this.folder) {
         this.cleanStorage().then(function () {
@@ -2215,6 +2216,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     }, 200),
     createQrCodeNameList: function createQrCodeNameList() {
       var _this2 = this;
+
+      if (!this.qr_code_names_text) {
+        this.err = "Please enter at least one line !";
+        return;
+      }
 
       this.qr_code_names_list = this.qr_code_names_text.split("\n");
       this.qr_code_names_list = this.qr_code_names_list.filter(function (e) {

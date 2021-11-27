@@ -78,6 +78,7 @@ export default {
     clearAll(){
         this.input_file=null;
         this.output_file=null;
+        this.err =null;
         if(this.folder) {
             this.cleanStorage().then(()=>{
               this.folder=null;
@@ -89,6 +90,10 @@ export default {
     handleInputChange: _.debounce(function(){this.clearAll()},200),
 
     createQrCodeNameList() {
+      if(!this.qr_code_names_text) {
+        this.err="Please enter at least one line !"
+        return;
+      }
       this.qr_code_names_list = this.qr_code_names_text.split("\n");
       this.qr_code_names_list = this.qr_code_names_list.filter((e) => {
         e = e.trim();
