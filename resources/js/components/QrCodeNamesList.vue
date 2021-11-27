@@ -171,17 +171,36 @@ export default {
         .then((res) => {
           this.clearErr;
           this.output_file = res.data.zip;
-          window.open("/downloads/" + this.output_file, "_blank");
-                this.output_file = "";
+         // window.open("/downloads/" + this.output_file, "_blank");
+
+
+
+          axios.get('downloads/' + this.output_file , {
+              responseType: 'blob',
+          }).then((response) => {
+              var fileURL = window.URL.createObjectURL(new Blob([response.data]));
+              var fileLink = document.createElement('a');
+            
+              fileLink.href = fileURL;
+              fileLink.setAttribute('download', this.output_file);
+              document.body.appendChild(fileLink);
+            
+              fileLink.click();
+                  this.output_file = "";
                   this.cleanGenerator;
                   this.loading = false;
+          });
+
+
+
+                
           })
         .catch((err) => {
           this.loading = false;
           this.cleanGenerator;
           this.err = err;
         });
-   
+
 
     },
   },

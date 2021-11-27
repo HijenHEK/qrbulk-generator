@@ -2326,11 +2326,21 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       this.loading = true;
       axios.post("/generate_zip_file/" + this.folder).then(function (res) {
         _this5.clearErr;
-        _this5.output_file = res.data.zip;
-        window.open("/downloads/" + _this5.output_file, "_blank");
-        _this5.output_file = "";
-        _this5.cleanGenerator;
-        _this5.loading = false;
+        _this5.output_file = res.data.zip; // window.open("/downloads/" + this.output_file, "_blank");
+
+        axios.get('downloads/' + _this5.output_file, {
+          responseType: 'blob'
+        }).then(function (response) {
+          var fileURL = window.URL.createObjectURL(new Blob([response.data]));
+          var fileLink = document.createElement('a');
+          fileLink.href = fileURL;
+          fileLink.setAttribute('download', _this5.output_file);
+          document.body.appendChild(fileLink);
+          fileLink.click();
+          _this5.output_file = "";
+          _this5.cleanGenerator;
+          _this5.loading = false;
+        });
       })["catch"](function (err) {
         _this5.loading = false;
         _this5.cleanGenerator;
