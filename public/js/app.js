@@ -2199,7 +2199,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     clearAll: function clearAll() {
       var _this = this;
 
-      this.input_file = null;
+      if (this.input_file) {
+        this.input_file = null;
+        this.$refs.input_file.value = null;
+      }
+
       this.output_file = null;
       this.err = null;
 
@@ -2245,27 +2249,42 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       var _this3 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee() {
-        var reader;
+        var files, reader;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
+                _this3.qr_code_names_text = '';
                 _this3.qr_code_names_list = [];
-                _context.next = 3;
-                return _this3.$refs.input_file.files[0];
+                _context.next = 4;
+                return _this3.$refs.input_file.files;
 
-              case 3:
+              case 4:
+                files = _context.sent;
+
+                if (!(files.length == 0)) {
+                  _context.next = 7;
+                  break;
+                }
+
+                return _context.abrupt("return");
+
+              case 7:
+                _context.next = 9;
+                return files[0];
+
+              case 9:
                 _this3.input_file = _context.sent;
 
-                if (!(_this3.input_file.type != "text/plain" || _this3.input_file.name.split(".")[_this3.input_file.name.split(".").length - 1] != "txt")) {
-                  _context.next = 7;
+                if (!(_this3.input_file && (_this3.input_file.type != "text/plain" || _this3.input_file.name.split(".")[_this3.input_file.name.split(".").length - 1] != "txt"))) {
+                  _context.next = 13;
                   break;
                 }
 
                 _this3.err = "input file should be a plain .txt text file";
                 return _context.abrupt("return");
 
-              case 7:
+              case 13:
                 _this3.clearErr;
                 reader = new FileReader();
                 reader.readAsText(_this3.input_file);
@@ -2275,7 +2294,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                   _this3.createQrCodeNameList;
                 };
 
-              case 11:
+              case 17:
               case "end":
                 return _context.stop();
             }
@@ -38734,7 +38753,7 @@ var render = function () {
         _c("input", {
           ref: "input_file",
           attrs: { type: "file", name: "input_file", accept: "plain/text" },
-          on: { change: _vm.upload },
+          on: { input: _vm.upload },
         }),
       ]),
     ]),

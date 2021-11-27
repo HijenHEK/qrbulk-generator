@@ -24,7 +24,7 @@
           name="input_file"
           ref="input_file"
           accept="plain/text"
-          @change="upload"
+          @input="upload"
           class=""
         />
       </div>
@@ -76,7 +76,10 @@ export default {
       this.err = "";
     },
     clearAll(){
-        this.input_file=null;
+        if(this.input_file) {
+          this.input_file=null;
+          this.$refs.input_file.value = null;
+        }
         this.output_file=null;
         this.err =null;
         if(this.folder) {
@@ -116,14 +119,20 @@ export default {
         });
     },
     async upload(event) {
+      this.qr_code_names_text = '';
       this.qr_code_names_list = [];
-      this.input_file = await this.$refs.input_file.files[0];
+      let files =  await this.$refs.input_file.files 
+      if( files.length == 0 ) {
+        return;
+      }
+      this.input_file = await files[0];
       if (
+        this.input_file && (
         this.input_file.type != "text/plain" ||
         this.input_file.name.split(".")[
           this.input_file.name.split(".").length - 1
         ] != "txt"
-      ) {
+      )) {
         this.err = "input file should be a plain .txt text file";
         return;
       }
