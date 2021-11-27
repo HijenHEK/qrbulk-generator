@@ -10,7 +10,7 @@
       name="qr_code_names_text"
       id="qr_code_names_text"
       v-model="qr_code_names_text"
-      @change="input_file=null;clearErr"
+      @keypress="handleInputChange"
       cols="30"
       rows="10"
     ></textarea>
@@ -75,6 +75,19 @@ export default {
     clearErr() {
       this.err = "";
     },
+    clearAll(){
+        this.input_file=null;
+        this.output_file=null;
+        if(this.folder) {
+            this.cleanStorage().then(()=>{
+              this.folder=null;
+              this.clearErr()
+            });
+        }
+    },
+
+    handleInputChange: _.debounce(function(){this.clearAll()},200),
+
     createQrCodeNameList() {
       this.qr_code_names_list = this.qr_code_names_text.split("\n");
       this.qr_code_names_list = this.qr_code_names_list.filter((e) => {
@@ -83,21 +96,18 @@ export default {
       });
       this.loading = true;
       this.clearErr;
-
-      axios
-        .post("/qr_code_bulk_generate", {
+      axios.post("/qr_code_bulk_generate", {
           qr_code_names_list: this.qr_code_names_list,
         })
         .then((res) => {
           this.clearErr;
           this.folder = res.data.folder;
-          console.log(res);
           if (!this.folder) this.err = "Oops something went wrong please try again !";
           this.loading = false;
         })
         .catch((err) => {
           this.loading = false;
-          this.err = err;
+          this.err = "Oops something went wrong please try again !";
         });
     },
     async upload(event) {
@@ -114,23 +124,21 @@ export default {
       }
       this.clearErr;
       var reader = new FileReader();
-      reader.readAsText(this.input_file);
+      reader.readAsText(this.input_file);   
       reader.onload = (evt) => {
         this.qr_code_names_text = evt.target.result;
         this.createQrCodeNameList;
       };
     },
+    cleanStorage() {
+      return axios.post('/clean_storage/' + this.folder);
+    },
     cleanGenerator(){
       this.loading = true;
-
-      axios
-        .post("/clean_storage/" + this.folder)
+      this.cleanStorage()
         .then((res) => {
-          this.clearErr;
-          this.output_file = null ,
-          this.input_file = null,
-          this.folder = null,
-          this.qr_code_names_text = null ,
+          this.clearAll();
+          this.qr_code_names_text = null ;
           this.qr_code_names_list = [];
                     this.loading = false;
 

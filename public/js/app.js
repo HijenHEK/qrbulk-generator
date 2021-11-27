@@ -2196,8 +2196,25 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     clearErr: function clearErr() {
       this.err = "";
     },
-    createQrCodeNameList: function createQrCodeNameList() {
+    clearAll: function clearAll() {
       var _this = this;
+
+      this.input_file = null;
+      this.output_file = null;
+
+      if (this.folder) {
+        this.cleanStorage().then(function () {
+          _this.folder = null;
+
+          _this.clearErr();
+        });
+      }
+    },
+    handleInputChange: _.debounce(function () {
+      this.clearAll();
+    }, 200),
+    createQrCodeNameList: function createQrCodeNameList() {
+      var _this2 = this;
 
       this.qr_code_names_list = this.qr_code_names_text.split("\n");
       this.qr_code_names_list = this.qr_code_names_list.filter(function (e) {
@@ -2209,18 +2226,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       axios.post("/qr_code_bulk_generate", {
         qr_code_names_list: this.qr_code_names_list
       }).then(function (res) {
-        _this.clearErr;
-        _this.folder = res.data.folder;
-        console.log(res);
-        if (!_this.folder) _this.err = "Oops something went wrong please try again !";
-        _this.loading = false;
+        _this2.clearErr;
+        _this2.folder = res.data.folder;
+        if (!_this2.folder) _this2.err = "Oops something went wrong please try again !";
+        _this2.loading = false;
       })["catch"](function (err) {
-        _this.loading = false;
-        _this.err = err;
+        _this2.loading = false;
+        _this2.err = "Oops something went wrong please try again !";
       });
     },
     upload: function upload(event) {
-      var _this2 = this;
+      var _this3 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee() {
         var reader;
@@ -2228,29 +2244,29 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                _this2.qr_code_names_list = [];
+                _this3.qr_code_names_list = [];
                 _context.next = 3;
-                return _this2.$refs.input_file.files[0];
+                return _this3.$refs.input_file.files[0];
 
               case 3:
-                _this2.input_file = _context.sent;
+                _this3.input_file = _context.sent;
 
-                if (!(_this2.input_file.type != "text/plain" || _this2.input_file.name.split(".")[_this2.input_file.name.split(".").length - 1] != "txt")) {
+                if (!(_this3.input_file.type != "text/plain" || _this3.input_file.name.split(".")[_this3.input_file.name.split(".").length - 1] != "txt")) {
                   _context.next = 7;
                   break;
                 }
 
-                _this2.err = "input file should be a plain .txt text file";
+                _this3.err = "input file should be a plain .txt text file";
                 return _context.abrupt("return");
 
               case 7:
-                _this2.clearErr;
+                _this3.clearErr;
                 reader = new FileReader();
-                reader.readAsText(_this2.input_file);
+                reader.readAsText(_this3.input_file);
 
                 reader.onload = function (evt) {
-                  _this2.qr_code_names_text = evt.target.result;
-                  _this2.createQrCodeNameList;
+                  _this3.qr_code_names_text = evt.target.result;
+                  _this3.createQrCodeNameList;
                 };
 
               case 11:
@@ -2261,34 +2277,39 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         }, _callee);
       }))();
     },
-    cleanGenerator: function cleanGenerator() {
-      var _this3 = this;
-
-      this.loading = true;
-      axios.post("/clean_storage/" + this.folder).then(function (res) {
-        _this3.clearErr;
-        _this3.output_file = null, _this3.input_file = null, _this3.folder = null, _this3.qr_code_names_text = null, _this3.qr_code_names_list = [];
-        _this3.loading = false;
-      })["catch"](function (err) {
-        _this3.loading = false;
-        _this3.err = err;
-      });
+    cleanStorage: function cleanStorage() {
+      return axios.post('/clean_storage/' + this.folder);
     },
-    downloadFile: function downloadFile() {
+    cleanGenerator: function cleanGenerator() {
       var _this4 = this;
 
       this.loading = true;
-      axios.post("/generate_zip_file/" + this.folder).then(function (res) {
-        _this4.clearErr;
-        _this4.output_file = res.data.zip;
-        window.open("/downloads/" + _this4.output_file, "_blank");
-        _this4.output_file = "";
-        _this4.cleanGenerator;
+      this.cleanStorage().then(function (res) {
+        _this4.clearAll();
+
+        _this4.qr_code_names_text = null;
+        _this4.qr_code_names_list = [];
         _this4.loading = false;
       })["catch"](function (err) {
         _this4.loading = false;
-        _this4.cleanGenerator;
         _this4.err = err;
+      });
+    },
+    downloadFile: function downloadFile() {
+      var _this5 = this;
+
+      this.loading = true;
+      axios.post("/generate_zip_file/" + this.folder).then(function (res) {
+        _this5.clearErr;
+        _this5.output_file = res.data.zip;
+        window.open("/downloads/" + _this5.output_file, "_blank");
+        _this5.output_file = "";
+        _this5.cleanGenerator;
+        _this5.loading = false;
+      })["catch"](function (err) {
+        _this5.loading = false;
+        _this5.cleanGenerator;
+        _this5.err = err;
       });
     }
   }
@@ -38686,10 +38707,7 @@ var render = function () {
       },
       domProps: { value: _vm.qr_code_names_text },
       on: {
-        change: function ($event) {
-          _vm.input_file = null
-          _vm.clearErr
-        },
+        keypress: _vm.handleInputChange,
         input: function ($event) {
           if ($event.target.composing) {
             return
